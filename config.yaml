@@ -9,8 +9,8 @@ units:
   screwRadius: 1.70
   standoffRadius: 3
   # Footprints
-  rp2040zero_x: 18
-  rp2040zero_y: 23.5
+  rp2040zero_x: 17.5
+  rp2040zero_y: 21
   pointing_x: 13
   pointing_y: 3
   # Case
@@ -98,7 +98,7 @@ points:
     mcu:
       anchor:
         aggregate.parts: [matrix_index_top, mirror_matrix_index_top]
-        shift: [0, -16]
+        shift: [0, -15]
     cirque:
       anchor:
         ref: [mcu]
@@ -107,6 +107,15 @@ points:
       anchor:
         ref: [mcu]
         shift: [0, -17]
+    led:
+      mirror: *mirror
+      anchor:
+        ref: [matrix_index_middle]
+        shift: [kx/2+5/2+2, -ky/2]
+    reset:
+      anchor:
+        aggregate.parts: [thumbs_outer_top, mirror_thumbs_outer_top]
+        shift: [0, 5]
     handle:
       anchor:
         ref: [mcu]
@@ -256,6 +265,14 @@ outlines:
     - what: circle
       where: /cirque/
       radius: 21
+  _led:
+    - what: rectangle
+      where: /led/
+      size: [5, 5]
+  _reset:
+    - what: rectangle
+      where: /reset/
+      size: [6.25, 4]
   _handle_inner:
     - what: circle
       where: handle
@@ -316,11 +333,14 @@ outlines:
     - ^_mcu
     - ^_pointing
     - ^_mounting
+    - ^_led
+    - ^_reset
   all:
     - ^case
     - ^combo
 pcbs:
   koumori:
+    template: kicad8
     outlines:
       main:
         outline: board
@@ -338,15 +358,19 @@ pcbs:
         layer: Dwgs.User
     footprints:
       chocHotswapLeft:
-        what: choc
+        what: ceoloide/switch_choc_v1_v2
         where: /^(thumb|matrix)/
         params:
-          keycaps: true
+          include_keycap: true
+          keycap_width: kx
+          keycap_height: ky
+          include_corner_marks: true
           hotswap: true
+          solder: true 
           from: "{{column_net}}"
           to: "{{colrow}}"
       diodeLeft:
-        what: diode
+        what: ceoloide/diode_tht_sod123
         where: /^(thumb|matrix)/
         params:
           from: "{{colrow}}"
@@ -354,15 +378,19 @@ pcbs:
         adjust:
           shift: [0, -5]
       chocHotswapRight:
-        what: choc
+        what:  ceoloide/switch_choc_v1_v2
         where: /^mirror_(thumb|matrix)/
         params:
-          keycaps: true
+          include_keycap: true
+          keycap_width: kx
+          keycap_height: ky
+          include_corner_marks: true
           hotswap: true
+          solder: true
           from: "{{mirror.column_net}}"
           to: "{{colrow}}"
       diodeRight:
-        what: diode
+        what: ceoloide/diode_tht_sod123
         where: /^mirror_(thumb|matrix)/
         params:
           from: "{{colrow}}"
@@ -380,6 +408,9 @@ pcbs:
           MISO: GP4
           SS: GP5
           MOSI: GP3
+      reset:
+        what: ceoloide/reset_switch_tht_top
+        where: reset
       holes:
         what: mountinghole
         where: /hole/
@@ -478,4 +509,3 @@ cases:
     - what: case
       name: _lidMounting
       operation: subtract
-
